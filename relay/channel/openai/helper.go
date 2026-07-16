@@ -240,5 +240,8 @@ func sendResponsesStreamData(c *gin.Context, streamResponse dto.ResponsesStreamR
 	if data == "" {
 		return
 	}
+	// Some OpenAI-compatible upstreams (e.g. DigitalOcean /v1/responses) serialize an unspecified message phase
+	// as "", which strict Responses clients reject. Null represents no phase.
+	data = strings.ReplaceAll(data, `"phase":""`, `"phase":null`)
 	_ = helper.ResponseChunkData(c, streamResponse, data)
 }
